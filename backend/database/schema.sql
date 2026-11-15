@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS users (
     role TEXT NOT NULL DEFAULT 'customer'
         CHECK (role IN ('customer', 'admin')),
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT
 );
 
 -- 2. PRODUCTS
@@ -23,7 +24,7 @@ CREATE TABLE IF NOT EXISTS products (
     name TEXT NOT NULL,
     description TEXT,
     price_cents INTEGER NOT NULL
-        CHECK (price_cents >= 0),
+        CHECK (price_cents > 0),
     stock_quantity INTEGER NOT NULL DEFAULT 0
         CHECK (stock_quantity >= 0),
     category TEXT,
@@ -40,6 +41,7 @@ CREATE TABLE IF NOT EXISTS carts (
     cart_id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL UNIQUE,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT,
 
     FOREIGN KEY (user_id)
         REFERENCES users(user_id)
@@ -83,6 +85,7 @@ CREATE TABLE IF NOT EXISTS orders (
             )
         ),
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT,
 
     FOREIGN KEY (user_id)
         REFERENCES users(user_id)
@@ -146,14 +149,18 @@ ON products(name);
 CREATE INDEX IF NOT EXISTS idx_products_category
 ON products(category);
 
-CREATE INDEX IF NOT EXISTS idx_orders_user_id
-ON orders(user_id);
+
+CREATE INDEX IF NOT EXISTS idx_orders_user_created
+ON orders(user_id, created_at DESC);
 
 CREATE INDEX IF NOT EXISTS idx_order_items_order_id
 ON order_items(order_id);
 
-CREATE INDEX IF NOT EXISTS idx_inventory_product_id
-ON inventory_transactions(product_id);
-
 CREATE INDEX IF NOT EXISTS idx_inventory_created_at
 ON inventory_transactions(created_at);
+
+CREATE INDEX IF NOT EXISTS idx_cart_items_product_id
+ON cart_items(product_id);
+
+CREATE INDEX IF NOT EXISTS idx_inventory_product_created
+ON inventory_transactions(product_id, created_at);
