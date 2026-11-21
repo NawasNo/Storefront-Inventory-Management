@@ -3,7 +3,7 @@ const path = require('path');
 
 const dbPath = path.join(__dirname, '../database/store.db');
 
-const db = new Database(dbPath);
+const db = new Database(dbPath, { fileMustExist: true });
 
 db.pragma('foreign_keys = ON');
 db.pragma('journal_mode = WAL');
