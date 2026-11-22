@@ -12,6 +12,9 @@ build/
 
 # SQLite database files
 *.db
+database/*.db
+database/*.db-wal
+database/*.db-shm
 *.sqlite
 *.sqlite3
 
