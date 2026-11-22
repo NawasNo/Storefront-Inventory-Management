@@ -6,7 +6,7 @@ import AdminProducts from './pages/AdminProducts';
 import initialProducts from './data/products';
 import './App.css';
 
-function App() {
+const App = () => {
   const [products, setProducts] = useState(initialProducts);
   const [selectedProductId, setSelectedProductId] = useState(null);
   const [currentPage, setCurrentPage] = useState('storefront');
@@ -15,28 +15,32 @@ function App() {
     (product) => product.is_active === 1,
   );
 
-  const selectedProduct = products.find(
+  const selectedProduct = activeProducts.find(
     (product) => product.product_id === selectedProductId,
   );
 
-  function handleSelectProduct(product) {
+  const handleSelectProduct = (product) => {
+    if (product.is_active !== 1) {
+      return;
+    }
+
     setSelectedProductId(product.product_id);
     setCurrentPage('details');
     window.scrollTo(0, 0);
-  }
+  };
 
-  function handleStorefront() {
+  const handleStorefront = () => {
     setSelectedProductId(null);
     setCurrentPage('storefront');
-  }
+  };
 
-  function handleAdmin() {
+  const handleAdmin = () => {
     setSelectedProductId(null);
     setCurrentPage('admin');
     window.scrollTo(0, 0);
-  }
+  };
 
-  function handleSaveProduct(productData, editingId) {
+  const handleSaveProduct = (productData, editingId) => {
     if (editingId !== null) {
       setProducts((previous) => previous.map(
         (product) => (
@@ -61,13 +65,17 @@ function App() {
         ];
       });
     }
-  }
+  };
 
-  function handleDeleteProduct(productId) {
-    setProducts((previous) => previous.filter(
-      (product) => product.product_id !== productId,
+  const handleDeactivateProduct = (productId) => {
+    setProducts((previous) => previous.map(
+      (product) => (
+        product.product_id === productId
+          ? { ...product, is_active: 0 }
+          : product
+      ),
     ));
-  }
+  };
 
   return (
     <>
@@ -85,6 +93,7 @@ function App() {
             <a href="#products" onClick={handleStorefront}>
               Products
             </a>
+
             <button
               type="button"
               className="admin-nav-button"
@@ -101,7 +110,7 @@ function App() {
           <AdminProducts
             products={products}
             onSave={handleSaveProduct}
-            onDelete={handleDeleteProduct}
+            onDeactivate={handleDeactivateProduct}
             onBack={handleStorefront}
           />
         ) : currentPage === 'details' && selectedProduct ? (
@@ -148,6 +157,6 @@ function App() {
       </footer>
     </>
   );
-}
+};
 
 export default App;

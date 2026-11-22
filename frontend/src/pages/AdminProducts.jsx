@@ -12,25 +12,25 @@ const emptyForm = {
   is_active: 1,
 };
 
-function AdminProducts({
+const AdminProducts = ({
   products,
   onSave,
-  onDelete,
+  onDeactivate,
   onBack,
-}) {
+}) => {
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState('');
 
-  function handleAdd() {
+  const handleAdd = () => {
     setEditingId(null);
     setForm({ ...emptyForm });
     setError('');
     setShowForm(true);
-  }
+  };
 
-  function handleEdit(product) {
+  const handleEdit = (product) => {
     setEditingId(product.product_id);
 
     setForm({
@@ -46,18 +46,18 @@ function AdminProducts({
 
     setError('');
     setShowForm(true);
-  }
+  };
 
-  function handleChange(event) {
+  const handleChange = (event) => {
     const { name, value } = event.target;
 
     setForm((previous) => ({
       ...previous,
-      [name]: value,
+      [name]: name === 'is_active' ? Number(value) : value,
     }));
-  }
+  };
 
-  function handleSubmit(event) {
+  const handleSubmit = (event) => {
     event.preventDefault();
 
     const price = Number(form.price);
@@ -107,28 +107,36 @@ function AdminProducts({
     setEditingId(null);
     setForm({ ...emptyForm });
     setError('');
-  }
+  };
 
-  function handleCancel() {
+  const handleCancel = () => {
     setShowForm(false);
     setEditingId(null);
     setForm({ ...emptyForm });
     setError('');
-  }
+  };
 
-  function handleDelete(product) {
+  const handleDeactivate = (product) => {
     const confirmed = window.confirm(
-      `Are you sure you want to delete "${product.name}"?`,
+      `Are you sure you want to deactivate "${product.name}"?`,
     );
 
     if (confirmed) {
-      onDelete(product.product_id);
+      onDeactivate(product.product_id);
 
       if (editingId === product.product_id) {
         handleCancel();
       }
     }
-  }
+  };
+
+  const handleActivate = (product) => {
+    onSave({ is_active: 1 }, product.product_id);
+
+    if (editingId === product.product_id) {
+      handleCancel();
+    }
+  };
 
   return (
     <section className="admin-products">
@@ -232,6 +240,26 @@ function AdminProducts({
               />
             </label>
 
+            <label>
+              Status
+              <select
+                name="is_active"
+                value={form.is_active}
+                onChange={handleChange}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  background: 'white',
+                  font: 'inherit',
+                }}
+              >
+                <option value="1">Active</option>
+                <option value="0">Inactive</option>
+              </select>
+            </label>
+
             <label className="admin-full-width">
               Description
               <textarea
@@ -276,6 +304,7 @@ function AdminProducts({
               <th>SKU</th>
               <th>Price</th>
               <th>Stock</th>
+              <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -299,6 +328,18 @@ function AdminProducts({
                 <td>{product.stock_quantity}</td>
 
                 <td>
+                  <span
+                    className={
+                      product.is_active === 1
+                        ? 'admin-active'
+                        : 'admin-inactive'
+                    }
+                  >
+                    {product.is_active === 1 ? 'Active' : 'Inactive'}
+                  </span>
+                </td>
+
+                <td>
                   <div className="admin-actions">
                     <button
                       type="button"
@@ -307,13 +348,22 @@ function AdminProducts({
                       Edit
                     </button>
 
-                    <button
-                      type="button"
-                      className="admin-delete-button"
-                      onClick={() => handleDelete(product)}
-                    >
-                      Delete
-                    </button>
+                    {product.is_active === 1 ? (
+                      <button
+                        type="button"
+                        className="admin-delete-button"
+                        onClick={() => handleDeactivate(product)}
+                      >
+                        Deactivate
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleActivate(product)}
+                      >
+                        Activate
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -323,6 +373,6 @@ function AdminProducts({
       </div>
     </section>
   );
-}
+};
 
 export default AdminProducts;
