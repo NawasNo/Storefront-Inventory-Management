@@ -107,13 +107,15 @@ const App = () => {
     }
 
     if (!product || product.is_active !== 1
-      || quantity > product.stock_quantity) {
+      || product.stock_quantity < 1) {
       return;
     }
 
+    const updatedQuantity = Math.min(quantity, product.stock_quantity);
+
     setCart((previous) => previous.map((item) => (
       item.product_id === productId
-        ? { ...item, quantity }
+        ? { ...item, quantity: updatedQuantity }
         : item
     )));
   };

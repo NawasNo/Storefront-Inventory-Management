@@ -285,6 +285,10 @@ The application automatically recalculates the total whenever the cart changes.
 
 An empty shopping cart displays an appropriate message.
 
+The quantity increase and decrease buttons include descriptive accessibility labels that identify the product being updated.
+
+Products with missing or invalid image URLs display a "No Image Available" placeholder consistent with the storefront styling.
+
 ### Cart State Management
 
 Shopping cart data is managed in `App.jsx` using React's `useState` hook.
@@ -312,6 +316,8 @@ Checkout is disabled when:
 - A cart item has an invalid quantity
 
 Quantity increases are prevented when the selected quantity reaches available stock.
+
+If available inventory decreases below the selected cart quantity, customers can use the decrease button to adjust the quantity directly to the available stock.
 
 The shopping cart also displays warnings when a product becomes unavailable or its selected quantity exceeds current stock.
 
@@ -491,6 +497,21 @@ Inventory deduction will occur during successful order processing after backend 
 - The production build was generated in `frontend/dist/`.
 
 **Status: Passed**
+
+### Test 11: Shopping Cart Peer Review Improvements
+
+**Objective:** Verify the improvements implemented in response to peer review feedback.
+
+**Results:**
+
+- Checkout validation prevents invalid cart contents from proceeding.
+- Cart quantities can be adjusted directly to available stock when inventory decreases.
+- Quantity controls include descriptive accessibility labels.
+- Missing or invalid product images display an appropriate fallback.
+- Product images and placeholders maintain consistent dimensions.
+- Shopping cart layout and existing functionality remain intact.
+
+**Status: Passed — Manual testing completed. Accessibility labels verified in source code.**
 
 ---
 

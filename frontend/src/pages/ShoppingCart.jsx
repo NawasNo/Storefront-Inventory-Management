@@ -8,6 +8,7 @@ const ShoppingCart = ({
   onBack,
 }) => {
   const [showCheckout, setShowCheckout] = useState(false);
+  const [failedImages, setFailedImages] = useState({});
 
   const cartItems = cart.map((item) => ({
     ...item,
@@ -70,11 +71,21 @@ const ShoppingCart = ({
 
               return (
                 <div className="cart-item" key={item.product_id}>
-                  <img
-                    src={product.image_url}
-                    alt={product.name}
-                    className="cart-item-image"
-                  />
+                  {product.image_url && !failedImages[product.product_id] ? (
+                    <img
+                      src={product.image_url}
+                      alt={product.name}
+                      className="cart-item-image"
+                      onError={() => setFailedImages((previous) => ({
+                        ...previous,
+                        [product.product_id]: true,
+                      }))}
+                    />
+                  ) : (
+                    <div className="cart-item-image cart-image-fallback">
+                      <span>No Image Available</span>
+                    </div>
+                  )}
 
                   <div className="cart-item-info">
                     <h2>{product.name}</h2>
@@ -83,6 +94,7 @@ const ShoppingCart = ({
                     <div className="cart-quantity-controls">
                       <button
                         type="button"
+                        aria-label={`Decrease quantity of ${product.name}`}
                         onClick={() => onUpdateQuantity(
                           product.product_id,
                           item.quantity - 1,
@@ -95,6 +107,7 @@ const ShoppingCart = ({
 
                       <button
                         type="button"
+                        aria-label={`Increase quantity of ${product.name}`}
                         disabled={
                           product.is_active !== 1
                           || item.quantity >= product.stock_quantity
@@ -140,7 +153,7 @@ const ShoppingCart = ({
             <p>
               Total: <strong>{formatPrice(totalCents)}</strong>
             </p>
-            {showCheckout ? (
+            {showCheckout && canCheckout ? (
               <>
                 <h3>Review Your Order</h3>
                 <p>
