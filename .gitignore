@@ -19,9 +19,15 @@ database/*.db-shm
 *.db-wal
 *.sqlite
 *.sqlite3
+# Session database
+backend/database/sessions.db
+backend/database/sessions.db-wal
+backend/database/sessions.db-shm
 
 # Logs
 *.log
+cookies.txt
+admin-cookies.txt
 
 # Editor files
 .vscode/

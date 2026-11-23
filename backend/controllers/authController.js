@@ -110,4 +110,107 @@ const register = async (req, res) => {
   }
 };
 
-module.exports = { register };
+const login = async (req, res) => {
+  const { email, password } = req.body || {};
+
+  if (typeof email !== 'string' || typeof password !== 'string' || !email.trim() || !password) {
+    return res.status(400).json({
+      message: 'Email and password are required.',
+    });
+  }
+
+  const normalizedEmail = email.trim().toLowerCase();
+
+  try {
+    const user = db
+      .prepare(
+        `
+      SELECT user_id, name, email, password_hash, role
+      FROM users
+      WHERE email = ?
+    `,
+      )
+      .get(normalizedEmail);
+
+    const passwordMatches = user ? await bcrypt.compare(password, user.password_hash) : false;
+
+    if (!user || !passwordMatches) {
+      return res.status(401).json({
+        message: 'Invalid email or password.',
+      });
+    }
+
+    req.session.regenerate((error) => {
+      if (error) {
+        console.error('Session regeneration error:', error);
+        return res.status(500).json({
+          message: 'Unable to log in. Please try again later.',
+        });
+      }
+
+      req.session.userId = user.user_id;
+
+      return req.session.save((saveError) => {
+        if (saveError) {
+          console.error('Session save error:', saveError);
+          return res.status(500).json({
+            message: 'Unable to log in. Please try again later.',
+          });
+        }
+
+        return res.status(200).json({
+          message: 'Login successful.',
+          user: {
+            user_id: user.user_id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+          },
+        });
+      });
+    });
+
+    return undefined;
+  } catch (error) {
+    console.error('Login error:', error);
+
+    return res.status(500).json({
+      message: 'Unable to log in. Please try again later.',
+    });
+  }
+};
+
+const getCurrentUser = (req, res) =>
+  res.status(200).json({
+    user: req.user,
+  });
+
+const logout = (req, res) => {
+  req.session.destroy((error) => {
+    if (error) {
+      console.error('Logout error:', error);
+
+      return res.status(500).json({
+        message: 'Unable to log out. Please try again later.',
+      });
+    }
+
+    res.clearCookie('store.sid', {
+      path: '/',
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+    });
+
+    return res.status(200).json({
+      message: 'Logout successful.',
+    });
+  });
+};
+
+module.exports = {
+  register,
+  login,
+  getCurrentUser,
+  logout,
+};
