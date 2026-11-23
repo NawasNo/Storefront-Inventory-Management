@@ -1,5 +1,5 @@
 
-function ProductDetails({ product, onBack }) {
+const ProductDetails = ({ product, onBack, onAddToCart }) => {
   const price = (product.price_cents / 100).toFixed(2);
   const inStock = product.stock_quantity > 0;
 
@@ -54,10 +54,19 @@ function ProductDetails({ product, onBack }) {
               {product.stock_quantity}
             </p>
           </div>
+
+          <button
+            type="button"
+            className="cart-primary-button"
+            disabled={!inStock}
+            onClick={() => onAddToCart(product.product_id)}
+          >
+            {inStock ? 'Add to Cart' : 'Out of Stock'}
+          </button>
         </div>
       </div>
     </section>
   );
-}
+};
 
 export default ProductDetails;
