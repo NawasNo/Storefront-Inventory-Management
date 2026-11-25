@@ -1,188 +1,290 @@
-
 # Storefront & Inventory Management
 
-A full-stack e-commerce application designed to provide a seamless shopping experience while offering administrators the tools needed to manage products, inventory, and customer orders.
-
-Developed for **CS465P at Portland State University**, this project uses React for the frontend, Node.js and Express for the backend, and SQLite for database management.
+A full-stack e-commerce application that combines an online storefront with an inventory management system.
 
 ## Overview
 
-The Storefront & Inventory Management application combines customer-facing shopping functionality with administrative inventory management.
+We created this project to better understand how a full-stack web application is designed, developed, and integrated. Our goal was to build an application that combines the functionality of an online store with the administrative tools needed to manage products, inventory, and customer orders.
 
-Customers will be able to browse products, manage shopping carts, and complete simulated purchases. Administrators will be able to manage the product catalog, track inventory levels, and review customer orders.
+The application is designed for two types of users: customers and administrators. Customers can create accounts, browse products, manage their shopping carts, and complete simulated purchases. Administrators can manage products, update inventory, and review customer orders.
 
-The application follows a modular architecture that separates the frontend, backend, and database operations.
-
-## Technology Stack
-
-| Layer | Technologies |
-|-------|-------------|
-| Frontend | React, JavaScript, Vite, CSS |
-| Backend | Node.js, Express.js |
-| Database | SQLite |
-| API | RESTful API |
-| Version Control | Git, GitHub |
-| Development | GitHub Codespaces, VS Code |
-
-## Planned Features
-
-### Customer Storefront
-
-- **Product Catalog:** Browse available products with descriptions, prices, and images.
-- **Product Details:** View detailed product information.
-- **Shopping Cart:** Add products, update quantities, and remove items.
-- **Checkout:** Complete a simulated checkout process.
-- **Order Confirmation:** Display confirmation after placing an order.
-
-### Administrative Dashboard
-
-- **Product Management:** Create, view, update, and delete products.
-- **Inventory Tracking:** Monitor available stock quantities.
-- **Inventory Adjustments:** Record additions, sales, and stock adjustments.
-- **Order Management:** View customer orders and their statuses.
+Throughout this project, we applied concepts covered in CS465P, including frontend development, backend development, RESTful APIs, database management, authentication, and application integration.
 
 ## Application Architecture
 
-The application uses a three-layer architecture.
+The application was developed using a three-layer architecture that separates the frontend, backend, and database.
 
-### Frontend — React
+### Frontend
 
-Provides the user interface for product browsing, shopping carts, checkout, and administrative functionality.
+The frontend is built using React, JavaScript, JSX, and CSS. React components are used to create reusable interfaces, manage application state, and handle user interactions.
 
-### Backend — Node.js / Express
+### Backend
 
-Processes HTTP requests, handles application logic, and exposes RESTful API endpoints.
+The backend is built using Node.js and Express. It handles HTTP requests, application logic, authentication, authorization, and communication with the database through RESTful API endpoints.
 
-### Database — SQLite
+### Database
 
-Stores application data, including products, shopping carts, orders, and inventory transactions.
+SQLite is used to store and manage application data, including user accounts, products, shopping carts, orders, and inventory transactions.
 
-### Data Flow
+## Technology Stack
 
-React Frontend → Express REST API → SQLite Database
+| Category | Technologies |
+|----------|-------------|
+| Frontend | React, JavaScript, JSX, CSS |
+| Backend | Node.js, Express.js |
+| Database | SQLite, SQL |
+| API | RESTful API, Fetch API |
+| Authentication | Session-based authentication, bcrypt |
+| Development Tools | Vite, ESLint, npm |
+| Version Control | Git, GitHub |
+| Development Environment | VS Code |
+
+## Features
+
+### User Authentication
+
+- Customer account registration
+- User login and logout
+- Secure password hashing
+- Session-based authentication
+- Persistent user sessions
+- Customer and administrator roles
+- Role-based access control
+- Form validation and error handling
+
+### Customer Storefront
+
+- Browse the product catalog
+- View product images, descriptions, prices, and stock quantities
+- View individual product details
+- Display active products
+- Responsive user interface
+
+### Shopping Cart
+
+- Add products to the shopping cart
+- Increase and decrease product quantities
+- Remove products from the shopping cart
+- Calculate item subtotals and order totals
+- Validate quantities against available inventory
+- Save shopping cart information to the database
+- Maintain shopping cart contents across user sessions
+
+### Checkout
+
+- Review products and quantities before checkout
+- Display the final order total
+- Validate product availability and inventory before placing an order
+- Complete simulated purchases
+- Generate order confirmation
+- Clear the shopping cart after successful checkout
+
+### Admin Product Management
+
+- View active and inactive products
+- Add new products
+- Edit existing products
+- Update product names, descriptions, prices, categories, and images
+- Update product stock quantities
+- Activate and deactivate products
+- Validate product information
+- Prevent duplicate product SKUs
+- Store and retrieve product information from the database
+
+Products are deactivated rather than permanently deleted to preserve product records associated with previous orders.
+
+### Inventory Management
+
+- Monitor available stock quantities
+- Update inventory levels
+- Prevent out-of-stock products from being added to the cart
+- Prevent cart quantities from exceeding available inventory
+- Display inventory warnings
+- Prevent checkout when cart items are invalid
+- Automatically deduct inventory after successful purchases
+- Record inventory additions, sales, and stock adjustments
+- Maintain inventory transaction records
+
+Inventory is deducted only after an order has been successfully processed, rather than when products are added to the shopping cart.
+
+### Order Management
+
+- Create and store customer orders
+- Record purchased products, quantities, and prices
+- Associate orders with customer accounts
+- Maintain order records in the database
+- Display order confirmations
+- Allow administrators to view customer orders
+- Allow administrators to review order details and statuses
+
+The application is designed to simulate purchases and does not process real payments.
+
+## Development Status
+
+The application is currently under active development.
 
 ## Project Structure
 
-    Storefront-Inventory-Management/
-    ├── frontend/
-    │   ├── public/
-    │   ├── src/
-    │   │   ├── assets/
-    │   │   ├── components/
-    │   │   ├── pages/
-    │   │   ├── services/
-    │   │   ├── App.jsx
-    │   │   └── main.jsx
-    │   ├── package.json
-    │   └── vite.config.js
-    │
-    ├── backend/
-    │   ├── db/
-    │   ├── routes/
-    │   ├── controllers/
-    │   └── package.json
-    │
-    ├── docs/
-    ├── .env.example
-    ├── .gitignore
-    └── README.md
+```
+Storefront-Inventory-Management/
+├── frontend/
+│   ├── public/
+│   │   ├── images/
+│   │   └── favicon.svg
+│   ├── src/
+│   │   ├── components/
+│   │   │   └── ProductCard.jsx
+│   │   ├── data/
+│   │   │   └── products.js
+│   │   ├── pages/
+│   │   │   ├── AdminProducts.jsx
+│   │   │   ├── Login.jsx
+│   │   │   ├── ProductDetails.jsx
+│   │   │   ├── Register.jsx
+│   │   │   └── ShoppingCart.jsx
+│   │   ├── services/
+│   │   │   └── auth.js
+│   │   ├── App.jsx
+│   │   ├── App.css
+│   │   ├── index.css
+│   │   └── main.jsx
+│   ├── .gitignore
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
+│   └── vite.config.js
+│
+├── backend/
+│   ├── config/
+│   │   ├── database.js
+│   │   └── session.js
+│   ├── controllers/
+│   │   └── authController.js
+│   ├── database/
+│   │   ├── schema.sql
+│   │   └── seed.js
+│   ├── middleware/
+│   │   └── authMiddleware.js
+│   ├── routes/
+│   │   └── authRoutes.js
+│   ├── app.js
+│   ├── package-lock.json
+│   └── package.json
+│
+├── docs/
+│   ├── DATABASE_SETUP.md
+│   ├── FRONTEND_SETUP.md
+│   ├── ER-diagram.pdf
+│   └── ER-diagram.png
+├── .env.example
+├── .gitignore
+└── README.md
+```
 
-### Directory Responsibilities
+### Directory Overview
 
-- `frontend/` — React frontend application.
-- `frontend/src/components/` — Reusable UI components.
-- `frontend/src/pages/` — Application pages and views.
-- `frontend/src/services/` — Backend API communication.
-- `backend/` — Express backend application.
-- `backend/db/` — Database schema, connection, and seed data.
-- `backend/routes/` — REST API routes.
-- `backend/controllers/` — Request handling and application logic.
-- `docs/` — Documentation and database diagrams.
+| Directory | Description |
+|-----------|-------------|
+| `frontend/` | React frontend application |
+| `frontend/public/` | Product images and static resources |
+| `frontend/src/components/` | Reusable React components |
+| `frontend/src/data/` | Frontend data and configuration |
+| `frontend/src/pages/` | Application pages and user interfaces |
+| `frontend/src/services/` | API communication between the frontend and backend |
+| `backend/` | Node.js and Express backend application |
+| `backend/config/` | Database, session, and application configuration |
+| `backend/controllers/` | Request handling and application logic |
+| `backend/database/` | Database schema, seed data, and database storage |
+| `backend/middleware/` | Authentication, authorization, and request processing |
+| `backend/routes/` | RESTful API endpoint definitions |
+| `docs/` | Project documentation, setup guides, and database diagrams |
 
-## Getting Started
+### Entity-Relationship Diagram
 
-### Prerequisites
+![Database ER Diagram](docs/ER-diagram.png)
 
-Ensure the following are installed:
+## Prerequisites
+
+Before setting up the application, make sure the following are installed:
 
 - Node.js
 - npm
 - Git
+- SQLite
 
-### 1. Clone the Repository
+## Getting Started
 
-    git clone https://github.com/NawasNo/Storefront-Inventory-Management.git
-    cd Storefront-Inventory-Management
+### Clone the Repository
 
-### 2. Frontend Setup
+git clone https://github.com/NawasNo/Storefront-Inventory-Management.git
+cd Storefront-Inventory-Management
 
-Navigate to the frontend directory:
+### Backend Setup
 
-    cd frontend
+Refer to the [Database Setup and Testing Guide](docs/DATABASE_SETUP.md) for instructions on configuring environment variables, installing backend dependencies, initializing the database, and running the backend.
 
-Install dependencies:
+### Frontend Setup
 
-    npm install
+Refer to the [Frontend Setup and Testing Guide](docs/FRONTEND_SETUP.md) for instructions on installing frontend dependencies, configuring the frontend, and running the application.
 
-Start the development server:
+Both the frontend and backend must be running for the application to function correctly.
 
-    npm run dev
+## Additional Libraries
 
-Vite will display the development URL, typically:
+The following libraries are used to support backend functionality:
 
-    http://localhost:5173
+| Library | Purpose |
+|---------|---------|
+| [better-sqlite3](https://github.com/WiseLibs/better-sqlite3) | SQLite database operations |
+| [bcrypt](https://github.com/kelektiv/node.bcrypt.js) | Password hashing |
+| [express-session](https://github.com/expressjs/session) | User session management |
+| [better-sqlite3-session-store](https://www.npmjs.com/package/better-sqlite3-session-store) | Persistent session storage |
+| [cors](https://github.com/expressjs/cors) | Cross-origin resource sharing |
+| [dotenv](https://github.com/motdotla/dotenv) | Environment variable configuration |
+| [nodemon](https://nodemon.io/) | Automatic backend server restarts |
 
-### 3. Backend Setup
+## Documentation
 
-From the repository root:
+Detailed project documentation is available in the `docs/` directory.
 
-    cd backend
+| Document | Description |
+|----------|-------------|
+| [Frontend Setup and Testing](docs/FRONTEND_SETUP.md) | Frontend installation, configuration, and testing |
+| [Database Setup and Testing](docs/DATABASE_SETUP.md) | Backend and database configuration, initialization, seed data, and testing |
+| [Entity-Relationship Diagram (PDF)](docs/ER-diagram.pdf) | Database design and table relationships |
+| [Entity-Relationship Diagram (PNG)](docs/ER-diagram.png) | Visual representation of the database design |
 
-Install dependencies:
+## Team Members
 
-    npm install
+### Nawas Noradeen
 
-The backend server and database integration are currently under development. Additional setup instructions will be provided as development progresses.
+**Frontend Development and Product Management API**
 
-## Database Design
+- Frontend architecture and development
+- Application layout and styling
+- Product catalog and Product Details page
+- Admin Product Management interface
+- Shopping cart and checkout review interface
+- Frontend login and registration
+- Frontend authentication API integration
+- Role-based frontend navigation
+- Product Management API
+- Frontend testing and documentation
 
-The application is planned to use a relational SQLite database.
+### Neha Marlady
 
-| Table | Description |
-|-------|-------------|
-| `users` | Customer and administrator account information |
-| `products` | Product details, prices, and stock quantities |
-| `carts` | Shopping carts associated with users |
-| `cart_items` | Products and quantities in shopping carts |
-| `orders` | Customer purchase records |
-| `order_items` | Individual products included in orders |
-| `inventory_transactions` | Records of inventory changes |
+**Backend Development and Database Management**
 
-The database schema and entity-relationship diagram will be included in the project documentation.
+- Backend architecture and development
+- SQLite database design and implementation
+- Database schema and seed data
+- Entity-relationship diagram
+- User registration and authentication API
+- Password hashing and session management
+- Authentication and authorization middleware
+- Shopping Cart API
+- Order processing API
+- Backend and database testing and documentation
 
-User authentication and account-related functionality are subject to final implementation decisions.
-
-## Development Status
-
-**Current Status: Initial Development**
-
-The repository currently includes:
-
-- React frontend initialized with Vite
-- Backend Node.js project initialized
-- Express, SQLite3, CORS, and dotenv dependencies
-- Organized frontend and backend directories
-- Initial project documentation
-
-### Upcoming Development
-
-- [ ] Implement database schema and seed data
-- [ ] Develop RESTful API endpoints
-- [ ] Build product catalog and product details
-- [ ] Implement shopping cart functionality
-- [ ] Develop simulated checkout and order processing
-- [ ] Build administrative product management
-- [ ] Implement inventory tracking
-- [ ] Integrate frontend and backend
-- [ ] Test application functionality
-- [ ] Finalize project documentation
+Both team members contribute to project planning, code reviews, application integration, testing, and documentation.

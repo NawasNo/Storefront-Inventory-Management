@@ -1,40 +1,23 @@
-
 # Frontend Setup and Testing
 
 ## 1. Overview
 
-This document describes the frontend setup, development, and testing completed for the **Storefront & Inventory Management System**.
+This document explains how to set up, run, and test the frontend for our Storefront & Inventory Management System.
 
-The frontend is implemented using **React**, **JavaScript**, **JSX**, and **CSS**, with **Vite** for development and build tooling.
-
-The application currently includes a customer-facing product catalog, product details page, administrative product management interface, shopping cart, and checkout review interface.
-
-Product and cart data are currently managed through React state. Backend RESTful API integration and database persistence are planned for a later development phase.
-
-### Technologies Used
-
-- **React** – Component-based user interface
-- **JavaScript** – Frontend application logic
-- **JSX** – React component structure
-- **CSS** – Styling and responsive layouts
-- **Vite** – Development server and build tool
-- **ESLint** – JavaScript linting and code quality
-
----
+The frontend uses React, JavaScript, JSX, CSS, and Vite.
 
 ## 2. Frontend Structure
-
-The frontend is organized into reusable components, pages, and data files.
 
 ```text
 frontend/
 ├── public/
-│   └── images/
-│       ├── laptop.jpg
-│       ├── mouse.jpg
-│       ├── keyboard.jpg
-│       ├── monitor.jpg
-│       └── headphones.jpg
+│   ├── images/
+│   │   ├── laptop.jpg
+│   │   ├── mouse.jpg
+│   │   ├── keyboard.jpg
+│   │   ├── monitor.jpg
+│   │   └── headphones.jpg
+│   └── favicon.svg
 ├── src/
 │   ├── components/
 │   │   └── ProductCard.jsx
@@ -42,558 +25,282 @@ frontend/
 │   │   └── products.js
 │   ├── pages/
 │   │   ├── AdminProducts.jsx
+│   │   ├── Login.jsx
 │   │   ├── ProductDetails.jsx
+│   │   ├── Register.jsx
 │   │   └── ShoppingCart.jsx
+│   ├── services/
+│   │   └── auth.js
 │   ├── App.jsx
 │   ├── App.css
 │   ├── index.css
 │   └── main.jsx
+├── .gitignore
+├── eslint.config.js
+├── index.html
+├── package-lock.json
 ├── package.json
 └── vite.config.js
 ```
-
-### File Descriptions
-
-| File | Description |
-|------|-------------|
-| `App.jsx` | Main application, navigation, product state, and shopping cart state management |
-| `App.css` | Application layout, styling, and shopping cart interface |
-| `index.css` | Global CSS styles |
-| `ProductCard.jsx` | Reusable product display component |
-| `ProductDetails.jsx` | Individual product details page with Add to Cart functionality |
-| `AdminProducts.jsx` | Administrative product management |
-| `ShoppingCart.jsx` | Shopping cart display, quantity management, order totals, and checkout review |
-| `products.js` | Temporary sample product data |
-| `main.jsx` | React application entry point |
-
 ---
 
 ## 3. Frontend Setup
 
+### Requirements
+
+- Node.js
+- npm
+- Configured backend
+- Initialized SQLite database
+
 ### Install Dependencies
 
-From the `frontend/` directory:
+From the root directory of the project, run:
 
 ```bash
-npm install
+cd frontend
+npm ci
 ```
 
-### Start Development Server
+### Start the Backend
+
+The backend needs to be running for authentication to work.
+
+Follow the instructions in `docs/DATABASE_SETUP.md` to set up the database and environment variables.
+
+From the `backend/` directory, run:
+
+```bash
+npm ci
+npm run dev
+```
+
+The backend runs at:
+
+`http://localhost:5001`
+
+### Start the Frontend
+
+Open a separate terminal and run the following from the `frontend/` directory:
 
 ```bash
 npm run dev
 ```
 
-Vite starts the development server, allowing the application to be viewed and tested locally.
+The frontend runs at:
 
-### Run ESLint
+`http://localhost:5173`
 
-```bash
-npm run lint
-```
+If using GitHub Codespaces, open the forwarded port for 5173.
 
-ESLint checks the frontend JavaScript and JSX files for configured code quality and formatting rules.
+Both the frontend and backend should be running when testing the application.
 
-### Build the Application
+### API Proxy
 
-```bash
-npm run build
-```
+The Vite configuration forwards requests starting with `/api` to the backend at `http://localhost:5001`.
 
-The production build is generated in the `dist/` directory.
+This allows the frontend to communicate with the backend using relative API URLs.
+
+The proxy is configured in `frontend/vite.config.js` and is used during development.
 
 ---
 
-## 4. Product Catalog
+## 4. Frontend Testing
 
-The storefront displays available products in a responsive grid layout.
-
-Each product includes:
-
-- Product image
-- Product name
-- Category
-- Description
-- Price
-- Available stock quantity
-
-The `ProductCard.jsx` component is used to display product information consistently across the storefront.
-
-### Product Details
-
-Users can select individual products to view additional information.
-
-The product details page displays:
-
-- Product image
-- Product name
-- Category
-- Description
-- Price
-- SKU
-- Available stock quantity
-- Stock availability status
-- Add to Cart button
-
-Users can return to the storefront using the Back to Products button.
-
-Only products with `is_active = 1` are displayed.
-
-Inactive products are excluded from both the storefront and product details view.
-
-### Sample Products
-
-| Product | Price | Initial Stock |
-|---------|-------|---------------|
-| Laptop | $899.99 | 10 |
-| Wireless Mouse | $25.99 | 50 |
-| Keyboard | $45.00 | 20 |
-| Monitor | $199.99 | 15 |
-| Headphones | $79.99 | 25 |
-
----
-
-## 5. Administrative Product Management
-
-The Admin Product Management interface provides functionality for managing products.
-
-### Add Products
-
-Administrators can create new products using a form containing:
-
-- Product name
-- SKU
-- Description
-- Category
-- Price
-- Stock quantity
-- Image URL
-- Active/Inactive status
-
-### Edit Products
-
-Existing products can be edited through the administrative interface.
-
-Changes are immediately reflected in React state and the storefront.
-
-### Form Validation
-
-The administrative form includes validation for:
-
-- Required product information
-- Valid product prices
-- Nonnegative stock quantities
-- Duplicate product SKUs
-
-Invalid information is rejected before updating the product list.
-
-### Product Activation and Deactivation
-
-Products are deactivated rather than permanently deleted.
-
-Deactivation updates the product's `is_active` value to `0`.
-
-Reactivation changes `is_active` back to `1`.
-
-The administrative table includes:
-
-- Product information
-- Stock quantity
-- Product status
-- Edit button
-- Activate or Deactivate button
-
-Inactive products remain visible in the Admin interface but are hidden from the storefront.
-
-This approach aligns with the SQLite database design and helps preserve product records for historical orders.
-
----
-
-## 6. Product Data Management
-
-The frontend currently uses temporary product data defined in:
-
-`frontend/src/data/products.js`
-
-React state is used to manage products during development.
-
-### Product Data Structure
-
-| Field | Description |
-|-------|-------------|
-| `product_id` | Unique product identifier |
-| `sku` | Product SKU |
-| `name` | Product name |
-| `description` | Product description |
-| `price_cents` | Product price in integer cents |
-| `stock_quantity` | Available inventory quantity |
-| `category` | Product category |
-| `image_url` | Product image location |
-| `is_active` | Product activation status |
-
-Product prices are stored as integer cents to remain consistent with the SQLite database schema.
-
-### Current Limitations
-
-The frontend is not yet connected to the backend RESTful API.
-
-Product additions, edits, and status changes are currently managed through React state.
-
-Refreshing the application resets the product data to its initial values.
-
-Database persistence will be implemented during frontend and backend integration.
-
----
-
-## 7. Shopping Cart and Checkout Review
-
-The shopping cart allows customers to select products, manage quantities, and review their orders before checkout.
-
-### Add to Cart
-
-Customers can add products to their shopping cart from the product details page.
-
-The Add to Cart functionality includes:
-
-- Adding available products to the cart
-- Increasing quantities when products are added multiple times
-- Preventing inactive products from being added
-- Preventing out-of-stock products from being added
-- Limiting quantities to available inventory
-- Displaying the total cart quantity in the navigation bar
-
-The Add to Cart button is disabled when a product is out of stock.
-
-### Shopping Cart Management
-
-The `ShoppingCart.jsx` component displays the products currently selected by the customer.
-
-Each cart item includes:
-
-- Product image and name
-- Individual product price
-- Selected quantity
-- Quantity increase and decrease controls
-- Remove button
-- Calculated item subtotal
-
-Customers can update quantities or remove products from their shopping cart.
-
-Decreasing a product quantity to zero removes the product from the cart.
-
-The application automatically recalculates the total whenever the cart changes.
-
-An empty shopping cart displays an appropriate message.
-
-The quantity increase and decrease buttons include descriptive accessibility labels that identify the product being updated.
-
-Products with missing or invalid image URLs display a "No Image Available" placeholder consistent with the storefront styling.
-
-### Cart State Management
-
-Shopping cart data is managed in `App.jsx` using React's `useState` hook.
-
-Each cart item contains:
-
-| Field | Description |
-|-------|-------------|
-| `product_id` | Identifier of the selected product |
-| `quantity` | Number of units selected |
-
-Product information is retrieved from the current product list using the product identifier.
-
-The cart counter is calculated by summing the quantities of all cart items.
-
-### Inventory Validation
-
-The shopping cart validates product availability before allowing checkout.
-
-Checkout is disabled when:
-
-- The cart is empty
-- A product is unavailable or inactive
-- A product quantity exceeds available stock
-- A cart item has an invalid quantity
-
-Quantity increases are prevented when the selected quantity reaches available stock.
-
-If available inventory decreases below the selected cart quantity, customers can use the decrease button to adjust the quantity directly to the available stock.
-
-The shopping cart also displays warnings when a product becomes unavailable or its selected quantity exceeds current stock.
-
-Product quantities are validated against the current product data stored in React state.
-
-### Order Summary
-
-The shopping cart displays an order summary containing the total price of all selected products.
-
-Individual item subtotals are calculated using the product price and selected quantity.
-
-The total order price is calculated by summing all item subtotals.
-
-Prices are calculated using integer cents and formatted as dollars for display.
-
-This maintains consistency with the SQLite database schema.
-
-### Checkout Review
-
-Customers can select **Proceed to Checkout** to display an order review.
-
-The checkout review includes:
-
-- Current shopping cart items
-- Current order total
-- Order review instructions
-- Back to Cart button
-
-The Back to Cart button returns the customer to the standard shopping cart summary.
-
-The checkout interface currently supports order review only.
-
-Actual order submission, database persistence, inventory deduction, and order confirmation will be implemented after the backend RESTful API becomes available.
-
-### Current Limitations
-
-Shopping cart information is temporarily stored in React state.
-
-Refreshing the application resets the shopping cart.
-
-The frontend does not currently submit orders to the SQLite database or process payments.
-
-Inventory quantities are not deducted when products are added to the cart.
-
-Inventory deduction will occur during successful order processing after backend integration.
-
----
-
-## 8. Frontend Testing
+The following tests can be performed manually through the frontend.
 
 ### Test 1: Product Catalog
 
-**Objective:** Verify that products display correctly in the storefront.
-
-**Results:**
-
-- Product images display correctly.
-- Product names, descriptions, categories, and prices are displayed.
-- Stock quantities are visible.
-- Products appear in a responsive grid.
+- Sign into an account.
+- Verify that all active products are displayed.
+- Verify that product images, names, descriptions, prices, and stock quantities are displayed correctly.
+- Resize the browser window to test the responsive layout.
 
 **Status: Passed**
 
 ### Test 2: Product Details
 
-**Objective:** Verify that users can view individual product information.
-
-**Results:**
-
-- Selecting a product opens its details page.
-- Product information matches the selected product.
-- Navigation back to the storefront works.
+- Select a product from the storefront.
+- Verify that the correct product information is displayed.
+- Select Back to Products.
+- Verify that the storefront is displayed again.
 
 **Status: Passed**
 
 ### Test 3: Add and Edit Products
 
-**Objective:** Verify that administrators can create and modify products.
-
-**Results:**
-
-- New products can be added.
-- Existing products can be edited.
-- Product changes are reflected in the storefront.
+- Sign into an admin account.
+- Open the Admin Product Management page.
+- Add a new product.
+- Edit an existing product.
+- Verify that the changes are reflected in the storefront.
 
 **Status: Passed**
 
 ### Test 4: Product Validation
 
-**Objective:** Verify that invalid product information is rejected.
+Try adding or editing a product using:
 
-**Results:**
+- Missing required fields
+- Invalid prices
+- Negative stock quantities
+- Duplicate SKUs
 
-- Invalid prices are rejected.
-- Negative stock quantities are rejected.
-- Duplicate SKUs are prevented.
-- Required fields are validated.
+Verify that invalid product information cannot be saved.
 
 **Status: Passed**
 
 ### Test 5: Product Activation and Deactivation
 
-**Objective:** Verify that administrators can control product availability.
-
-**Results:**
-
-- Active products can be deactivated.
-- Deactivated products disappear from the storefront.
-- Inactive products remain visible in the Admin table.
-- Inactive products can be reactivated.
-- Reactivated products reappear in the storefront.
+- Sign into an admin account.
+- Deactivate an active product.
+- Verify that the product is removed from the storefront.
+- Verify that the product remains visible in the admin table.
+- Activate the product again.
+- Verify that the product appears in the storefront.
 
 **Status: Passed**
 
 ### Test 6: Inactive Product Filtering
 
-**Objective:** Verify that inactive products cannot be displayed through the product details view.
-
-**Results:**
-
-- The storefront displays only active products.
-- Product details are retrieved from the active product list.
-- Inactive products are excluded from product details.
+- Deactivate a product.
+- Return to the storefront.
+- Verify that the inactive product is not displayed.
+- Verify that inactive products cannot be opened through the Product Details page.
 
 **Status: Passed**
 
 ### Test 7: Add to Cart
 
-**Objective:** Verify that customers can add available products to the shopping cart.
-
-**Results:**
-
-- Available products can be added to the cart.
-- Adding the same product increases its quantity.
-- The cart counter updates correctly.
-- Out-of-stock and inactive products are prevented from being added.
-- Product quantities cannot exceed available stock.
+- Select an available product.
+- Add the product to the shopping cart.
+- Add the same product again.
+- Verify that the quantity and cart counter increase.
+- Attempt to add more products than the available stock.
+- Verify that inactive and out-of-stock products cannot be added.
 
 **Status: Passed**
 
 ### Test 8: Shopping Cart Management
 
-**Objective:** Verify that customers can manage selected products.
-
-**Results:**
-
-- Cart items display product information and prices.
-- Quantities can be increased and decreased.
-- Products can be removed from the cart.
-- Item subtotals and order totals update correctly.
-- An empty cart displays an appropriate message.
+- Add multiple products to the shopping cart.
+- Increase and decrease product quantities.
+- Verify that item subtotals and order totals update correctly.
+- Remove a product from the cart.
+- Remove all remaining products.
+- Verify that the empty cart message is displayed.
 
 **Status: Passed**
 
 ### Test 9: Checkout Review
 
-**Objective:** Verify that customers can review their shopping cart before order submission.
-
-**Results:**
-
-- Proceed to Checkout displays the order review interface.
-- The current order total remains visible.
-- Back to Cart navigation is implemented.
-- Checkout validation prevents invalid cart contents from proceeding.
-
-**Status: Partially Tested — Checkout review display verified; remaining interaction tests and backend order submission pending**
-
-### Test 10: ESLint and Production Build
-
-**Objective:** Verify frontend code quality and production build compatibility.
-
-**Results:**
-
-- `npm run lint` completed without errors.
-- `npm run build` completed successfully.
-- Vite successfully transformed 22 modules.
-- The production build was generated in `frontend/dist/`.
+- Add an available product to the shopping cart.
+- Select Proceed to Checkout.
+- Verify that the order review and total are displayed.
+- Select Back to Cart.
+- Verify that invalid cart items prevent checkout.
 
 **Status: Passed**
 
-### Test 11: Shopping Cart Peer Review Improvements
+The checkout review display has been verified. Remaining interaction testing and backend order submission are pending.
 
-**Objective:** Verify the improvements implemented in response to peer review feedback.
+### Test 10: Shopping Cart Validation and Image Handling
 
-**Results:**
+- Add a product to the shopping cart.
+- Reduce its available stock through the Admin page.
+- Verify that the cart displays a warning when the selected quantity exceeds available stock.
+- Verify that the quantity can be adjusted to the available stock.
+- Verify that invalid cart items prevent checkout.
+- Test a product with a missing or invalid image URL.
+- Verify that the image placeholder is displayed.
+- Verify that the quantity buttons include descriptive accessibility labels.
 
-- Checkout validation prevents invalid cart contents from proceeding.
-- Cart quantities can be adjusted directly to available stock when inventory decreases.
-- Quantity controls include descriptive accessibility labels.
-- Missing or invalid product images display an appropriate fallback.
-- Product images and placeholders maintain consistent dimensions.
-- Shopping cart layout and existing functionality remain intact.
+**Status: Passed**
 
-**Status: Passed — Manual testing completed. Accessibility labels verified in source code.**
+### Test 11: User Registration
 
----
+- Open the Registration page.
+- Enter a valid name, email address, and password.
+- Confirm the password.
+- Submit the registration form.
+- Verify that the Login page is displayed.
+- Sign in using the newly created account.
 
-## 9. Current Progress
+Also test registration using:
 
-The following frontend tasks have been completed:
+- An existing email address
+- A password shorter than eight characters
+- Passwords that do not match
+- Missing required fields
 
-- [x] Initialized React application with Vite
-- [x] Configured ESLint
-- [x] Organized frontend directories
-- [x] Created reusable product components
-- [x] Developed responsive product catalog
-- [x] Implemented product details page
-- [x] Developed Admin Product Management interface
-- [x] Implemented add and edit product functionality
-- [x] Added product form validation
-- [x] Implemented product activation and deactivation
-- [x] Added Active/Inactive status display
-- [x] Filtered inactive products from the storefront
-- [x] Tested product management functionality
-- [x] Implemented Add to Cart functionality
-- [x] Implemented shopping cart quantity management
-- [x] Implemented product removal from cart
-- [x] Added inventory and stock quantity validation
-- [x] Implemented shopping cart totals
-- [x] Implemented checkout review interface
-- [x] Verified ESLint and production build
+Verify that invalid registration information is rejected.
 
-### Next Development Phase: User Authentication
+**Status: Passed**
 
-- [ ] Implement frontend user registration interface
-- [ ] Connect registration form to POST /api/auth/register
-- [ ] Implement frontend login interface
-- [ ] Integrate login with backend authentication API
-- [ ] Implement authenticated-user state management
-- [ ] Require authentication to access the storefront
-- [ ] Restrict Admin Product Management to administrator accounts
-- [ ] Implement frontend logout functionality
-- [ ] Test customer and administrator access permissions
+### Test 12: User Login
 
-### Remaining Frontend Development Tasks
+- Sign in using a valid admin account.
+- Verify that the storefront is displayed.
+- Verify that the Admin button is available.
+- Sign out and sign in using a customer account.
+- Verify that the Admin button is not displayed.
+- Attempt to sign in using incorrect credentials.
+- Verify that an error message is displayed.
 
-- [ ] Integrate product catalog with backend RESTful API
-- [ ] Connect Admin Product Management to backend product API
-- [ ] Replace temporary product data with products retrieved from the backend API
-- [ ] Integrate shopping cart with backend cart API
-- [ ] Display persistent shopping cart information
-- [ ] Connect checkout interface to backend order API
-- [ ] Display order confirmation after successful submission
-- [ ] Handle API errors and loading states
-- [ ] Complete frontend and backend integration testing
+**Status: Passed**
 
----
+### Test 13: Session Management
 
-## 10. Conclusion
+- Sign into an account.
+- Refresh the browser.
+- Verify that the user remains signed in.
+- Select Sign Out.
+- Verify that the Login page is displayed.
+- Refresh the browser again.
+- Verify that the user remains signed out.
 
-The React frontend has been developed and manually tested for product browsing, administrative product management, shopping cart functionality, and checkout review.
+**Status: Passed**
 
-Customers can browse available products, view product details, add items to their shopping cart, adjust quantities, remove products, and review their order totals.
+### Test 14: Access Permissions
 
-The administrative interface supports adding, editing, activating, and deactivating products using React state.
+Verify that each user has the correct access permissions.
 
-The frontend uses reusable React components, consistent JavaScript conventions, and product fields compatible with the SQLite database schema.
+| Page or Feature | Not Signed In | Customer | Admin |
+|-----------------|---------------|----------|-------|
+| Login | Yes | No | No |
+| Registration | Yes | No | No |
+| Product Catalog | No | Yes | Yes |
+| Product Details | No | Yes | Yes |
+| Shopping Cart | No | Yes | Yes |
+| Admin Product Management | No | No | Yes |
+| Sign Out | No | Yes | Yes |
 
-ESLint and production build checks have completed successfully.
+**Status: Passed**
 
-### Next Development Phase
+## 6. Testing Notes and Current Limitations
 
-The next phase of frontend development will focus on implementing user authentication interfaces and integrating them with the backend authentication API.
+### Authentication Testing
 
-Planned frontend development includes:
+During authentication testing, the backend referenced a shopping cart route that was still being developed.
 
-- Creating customer registration and login interfaces
-- Connecting registration and login forms to backend endpoints
-- Managing authenticated-user state
-- Requiring authentication before accessing the storefront
-- Restricting administrative functionality to authorized users
-- Implementing logout functionality
-- Testing authentication and role-based navigation
+We temporarily commented out the cart route import and registration in `backend/app.js` to allow authentication testing.
 
-Following authentication integration, frontend development will continue with connecting the product catalog, administrative product management, shopping cart, and checkout review interfaces to the backend RESTful API.
+The original backend configuration was restored after testing, and the temporary changes were not committed.
 
-These integrations will replace temporary React state data with persistent database-backed information and support complete order processing.
+The missing cart route must be available before the backend can start with its original configuration.
 
-The final development phase will focus on integrated application testing, validating user interactions, and ensuring consistent frontend behavior.
+### Current Limitations
+
+- Product information is currently managed through React state rather than the database.
+- Product changes are not saved after refreshing the application.
+- Shopping cart information is not persistent across user sessions.
+- Product management and shopping cart functionality are not yet connected to their corresponding backend APIs.
+- The checkout interface currently supports order review only.
+- Order submission, automatic inventory deduction, and inventory transaction recording require backend integration.
+- The Vite API proxy is configured for development only.
+
+### Additional Testing
+
+Product management, shopping cart, inventory management, and checkout functionality will need to be tested again once their corresponding backend APIs are integrated.
+
+Local database files, environment credentials, and temporary backend changes should not be committed to GitHub.

@@ -1,17 +1,44 @@
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ProductCard from './components/ProductCard';
 import ProductDetails from './pages/ProductDetails';
 import AdminProducts from './pages/AdminProducts';
 import ShoppingCart from './pages/ShoppingCart';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import {
+  login, register, getCurrentUser, logout,
+} from './services/auth';
 import initialProducts from './data/products';
 import './App.css';
 
 const App = () => {
   const [products, setProducts] = useState(initialProducts);
   const [selectedProductId, setSelectedProductId] = useState(null);
-  const [currentPage, setCurrentPage] = useState('storefront');
+  const [currentPage, setCurrentPage] = useState('login');
   const [cart, setCart] = useState([]);
+  const [user, setUser] = useState(null);
+  const [authError, setAuthError] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
+  const [sessionLoading, setSessionLoading] = useState(true);
+
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const data = await getCurrentUser();
+
+        setUser(data.user);
+        setCurrentPage('storefront');
+      } catch {
+        setUser(null);
+        setCurrentPage('login');
+      } finally {
+        setSessionLoading(false);
+      }
+    };
+
+    checkSession();
+  }, []);
 
   const cartCount = cart.reduce(
     (total, item) => total + item.quantity,
@@ -27,7 +54,7 @@ const App = () => {
   );
 
   const handleSelectProduct = (product) => {
-    if (product.is_active !== 1) {
+    if (!user || product.is_active !== 1) {
       return;
     }
 
@@ -37,20 +64,93 @@ const App = () => {
   };
 
   const handleStorefront = () => {
+    if (!user) {
+      return;
+    }
+
     setSelectedProductId(null);
     setCurrentPage('storefront');
+    window.scrollTo(0, 0);
   };
 
   const handleAdmin = () => {
+    if (!user || user.role !== 'admin') {
+      return;
+    }
+
     setSelectedProductId(null);
     setCurrentPage('admin');
     window.scrollTo(0, 0);
   };
 
   const handleCart = () => {
+    if (!user) {
+      return;
+    }
+
     setSelectedProductId(null);
     setCurrentPage('cart');
     window.scrollTo(0, 0);
+  };
+
+  const handleLoginPage = () => {
+    setAuthError('');
+    setSelectedProductId(null);
+    setCurrentPage('login');
+    window.scrollTo(0, 0);
+  };
+
+  const handleRegisterPage = () => {
+    setAuthError('');
+    setSelectedProductId(null);
+    setCurrentPage('register');
+    window.scrollTo(0, 0);
+  };
+
+  const handleLogin = async (credentials) => {
+    setAuthError('');
+    setAuthLoading(true);
+
+    try {
+      const data = await login(credentials);
+
+      setUser(data.user);
+      setSelectedProductId(null);
+      setCurrentPage('storefront');
+      window.scrollTo(0, 0);
+    } catch (error) {
+      setAuthError(error.message);
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleRegister = async (userData) => {
+    setAuthError('');
+    setAuthLoading(true);
+
+    try {
+      await register(userData);
+      handleLoginPage();
+    } catch (error) {
+      setAuthError(error.message);
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    setAuthError('');
+
+    try {
+      await logout();
+
+      setUser(null);
+      setCart([]);
+      handleLoginPage();
+    } catch (error) {
+      setAuthError(error.message);
+    }
   };
 
   const handleAddToCart = (productId) => {
@@ -175,32 +275,91 @@ const App = () => {
             TechStore
           </a>
 
-          <nav aria-label="Main navigation">
-            <a href="#products" onClick={handleStorefront}>
-              Products
-            </a>
+          <nav className="store-nav">
+            {!sessionLoading && (
+              user ? (
+                <>
+                  <a href="#products" onClick={handleStorefront}>
+                    Products
+                  </a>
 
-            <button
-              type="button"
-              className="admin-nav-button"
-              onClick={handleCart}
-            >
-              Cart ({cartCount})
-            </button>
+                  <button
+                    type="button"
+                    className="admin-nav-button"
+                    onClick={handleCart}
+                  >
+                    Cart ({cartCount})
+                  </button>
 
-            <button
-              type="button"
-              className="admin-nav-button"
-              onClick={handleAdmin}
-            >
-              Admin
-            </button>
+                  {user.role === 'admin' && (
+                    <button
+                      type="button"
+                      className="admin-nav-button"
+                      onClick={handleAdmin}
+                    >
+                      Admin
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    className="admin-nav-button"
+                    onClick={handleLogout}
+                  >
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    className="admin-nav-button"
+                    onClick={handleLoginPage}
+                  >
+                    Sign In
+                  </button>
+
+                  <button
+                    type="button"
+                    className="admin-nav-button"
+                    onClick={handleRegisterPage}
+                  >
+                    Register
+                  </button>
+                </>
+              )
+            )}
           </nav>
         </div>
       </header>
-
       <main>
-        {currentPage === 'admin' ? (
+        {user && authError && (
+          <p className="auth-error" role="alert">
+            {authError}
+          </p>
+        )}
+
+        {sessionLoading ? (
+          <section className="auth-page">
+            <p>Loading...</p>
+          </section>
+        ) : !user ? (
+          currentPage === 'register' ? (
+            <Register
+              onRegister={handleRegister}
+              onLogin={handleLoginPage}
+              error={authError}
+              loading={authLoading}
+            />
+          ) : (
+            <Login
+              onLogin={handleLogin}
+              onRegister={handleRegisterPage}
+              error={authError}
+              loading={authLoading}
+            />
+          )
+        ) : currentPage === 'admin' && user.role === 'admin' ? (
           <AdminProducts
             products={products}
             onSave={handleSaveProduct}
