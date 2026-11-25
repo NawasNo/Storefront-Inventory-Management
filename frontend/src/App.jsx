@@ -9,11 +9,18 @@ import Register from './pages/Register';
 import {
   login, register, getCurrentUser, logout,
 } from './services/auth';
-import initialProducts from './data/products';
+import {
+  getProducts,
+  getAdminProducts,
+  createProduct,
+  updateProduct,
+} from './services/products';
 import './App.css';
 
 const App = () => {
-  const [products, setProducts] = useState(initialProducts);
+  const [products, setProducts] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(true);
+  const [productsError, setProductsError] = useState('');
   const [selectedProductId, setSelectedProductId] = useState(null);
   const [currentPage, setCurrentPage] = useState('login');
   const [cart, setCart] = useState([]);
@@ -39,6 +46,41 @@ const App = () => {
 
     checkSession();
   }, []);
+
+  useEffect(() => {
+    if (!user) {
+      return undefined;
+    }
+
+    let cancelled = false;
+
+    const loadProducts = async () => {
+      try {
+        const data = user.role === 'admin'
+          ? await getAdminProducts()
+          : await getProducts();
+
+        if (!cancelled) {
+          setProducts(data.products);
+          setProductsError('');
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setProductsError(error.message);
+        }
+      } finally {
+        if (!cancelled) {
+          setProductsLoading(false);
+        }
+      }
+    };
+
+    loadProducts();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
 
   const cartCount = cart.reduce(
     (total, item) => total + item.quantity,
@@ -114,6 +156,9 @@ const App = () => {
     try {
       const data = await login(credentials);
 
+      setProducts([]);
+      setProductsLoading(true);
+      setProductsError('');
       setUser(data.user);
       setSelectedProductId(null);
       setCurrentPage('storefront');
@@ -146,6 +191,9 @@ const App = () => {
       await logout();
 
       setUser(null);
+      setProducts([]);
+      setProductsLoading(true);
+      setProductsError('');
       setCart([]);
       handleLoginPage();
     } catch (error) {
@@ -226,41 +274,29 @@ const App = () => {
     ));
   };
 
-  const handleSaveProduct = (productData, editingId) => {
-    if (editingId !== null) {
-      setProducts((previous) => previous.map(
-        (product) => (
+  const handleSaveProduct = async (productData, editingId) => {
+    if (editingId !== null && editingId !== undefined) {
+      const data = await updateProduct(editingId, productData);
+
+      setProducts((previousProducts) => (
+        previousProducts.map((product) => (
           product.product_id === editingId
-            ? { ...product, ...productData }
+            ? data.product
             : product
-        ),
+        ))
       ));
     } else {
-      setProducts((previous) => {
-        const nextId = previous.reduce(
-          (highest, product) => Math.max(highest, product.product_id),
-          0,
-        ) + 1;
+      const data = await createProduct(productData);
 
-        return [
-          ...previous,
-          {
-            product_id: nextId,
-            ...productData,
-          },
-        ];
-      });
+      setProducts((previousProducts) => [
+        ...previousProducts,
+        data.product,
+      ]);
     }
   };
 
-  const handleDeactivateProduct = (productId) => {
-    setProducts((previous) => previous.map(
-      (product) => (
-        product.product_id === productId
-          ? { ...product, is_active: 0 }
-          : product
-      ),
-    ));
+  const handleDeactivateProduct = async (productId) => {
+    await handleSaveProduct({ is_active: 0 }, productId);
   };
 
   return (
@@ -359,6 +395,10 @@ const App = () => {
               loading={authLoading}
             />
           )
+        ) : productsLoading ? (
+          <p>Loading products...</p>
+        ) : productsError ? (
+          <p role="alert">{productsError}</p>
         ) : currentPage === 'admin' && user.role === 'admin' ? (
           <AdminProducts
             products={products}

@@ -38,6 +38,7 @@ const products = [
     price_cents: 89999,
     stock_quantity: 10,
     category: 'Electronics',
+    image_url: '/images/laptop.jpg',
   },
   {
     sku: 'ELEC002',
@@ -46,6 +47,7 @@ const products = [
     price_cents: 2599,
     stock_quantity: 50,
     category: 'Accessories',
+    image_url: '/images/mouse.jpg',
   },
   {
     sku: 'ELEC003',
@@ -54,6 +56,7 @@ const products = [
     price_cents: 4500,
     stock_quantity: 20,
     category: 'Accessories',
+    image_url: '/images/keyboard.jpg',
   },
   {
     sku: 'ELEC004',
@@ -62,6 +65,7 @@ const products = [
     price_cents: 19999,
     stock_quantity: 15,
     category: 'Electronics',
+    image_url: '/images/monitor.jpg',
   },
   {
     sku: 'ELEC005',
@@ -70,6 +74,7 @@ const products = [
     price_cents: 7999,
     stock_quantity: 25,
     category: 'Audio',
+    image_url: '/images/headphones.jpg',
   },
 ];
 
@@ -88,8 +93,8 @@ const seedDatabase = db.transaction(() => {
 
   const insertProduct = db.prepare(`
     INSERT OR IGNORE INTO products
-      (sku, name, description, price_cents, stock_quantity, category)
-    VALUES (?, ?, ?, ?, ?, ?)
+      (sku, name, description, price_cents, stock_quantity, category, image_url)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
   `);
 
   const insertInventory = db.prepare(`
@@ -112,6 +117,7 @@ const seedDatabase = db.transaction(() => {
       product.price_cents,
       product.stock_quantity,
       product.category,
+      product.image_url,
     );
 
     // Only record initial stock when the product was newly inserted.

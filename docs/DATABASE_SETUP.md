@@ -128,13 +128,15 @@ Development passwords were provided through environment variables rather than ha
 
 ### Sample Products
 
-| SKU | Product | Price | Initial Stock |
-|-----|---------|-------|---------------|
-| ELEC001 | Laptop | $899.99 | 10 |
-| ELEC002 | Wireless Mouse | $25.99 | 50 |
-| ELEC003 | Keyboard | $45.00 | 20 |
-| ELEC004 | Monitor | $199.99 | 15 |
-| ELEC005 | Headphones | $79.99 | 25 |
+| SKU | Product | Price | Initial Stock | Image URL |
+|-----|---------|-------|---------------|-----------|
+| ELEC001 | Laptop | $899.99 | 10 | /images/laptop.jpg |
+| ELEC002 | Wireless Mouse | $25.99 | 50 | /images/mouse.jpg |
+| ELEC003 | Keyboard | $45.00 | 20 | /images/keyboard.jpg |
+| ELEC004 | Monitor | $199.99 | 15 | /images/monitor.jpg |
+| ELEC005 | Headphones | $79.99 | 25 | /images/headphones.jpg |
+
+Product image URLs are stored in the database and reference image files located in `frontend/public/images/`.
 
 ### Seed Script Execution
 
@@ -157,7 +159,9 @@ A cart was created for the customer account.
 
 The inventory transactions recorded the initial stock quantities for all five products.
 
-The seed script uses `INSERT OR IGNORE` to avoid duplicate records during repeated execution.
+Existing product records are not overwritten when the seed script is executed again.
+
+During Product API integration, the existing sample products were updated with their corresponding image URLs without resetting the database or modifying inventory quantities.
 
 ---
 
@@ -293,6 +297,56 @@ This confirmed that duplicate product entries in the same cart are prevented.
 
 **Status: Passed**
 
+### Test 6: Product Creation and Updates
+
+**Objective:** Verify that product changes made through the Product API are saved in SQLite.
+
+- Created a new product through the API.
+- Updated product pricing and stock quantities.
+- Created and edited products through the Admin Product Management page.
+- Refreshed the frontend to verify database persistence.
+
+**Status: Passed**
+
+### Test 7: Inventory Transaction Recording
+
+**Objective:** Verify that product creation and stock adjustments generate inventory transactions.
+
+The following inventory changes were tested:
+
+| Operation | Quantity Changed | Transaction Type |
+|-----------|------------------|------------------|
+| Initial stock | +5 | addition |
+| Stock increase | +3 | adjustment |
+| Stock decrease | -6 | adjustment |
+
+Inventory records were verified using SQLite.
+
+**Status: Passed**
+
+### Test 8: Product Activation and Deactivation
+
+**Objective:** Verify that products can be deactivated without permanently deleting database records.
+
+- Deactivated an existing product.
+- Verified that the product was excluded from the storefront.
+- Verified that the product remained available in the administrator product listing.
+- Reactivated the product and verified that it returned to the storefront.
+
+**Status: Passed**
+
+### Test 9: Product Image Storage
+
+**Objective:** Verify that product image URLs are stored and retrieved correctly.
+
+```sql
+SELECT sku, name, image_url
+FROM products;
+```
+
+All five original products were verified to have the correct image URLs and displayed their corresponding images in the frontend.
+
+**Status: Passed**
 ---
 
 ## 6. Inventory Management Rules

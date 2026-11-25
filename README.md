@@ -34,7 +34,7 @@ SQLite is used to store and manage application data, including user accounts, pr
 | Backend | Node.js, Express.js |
 | Database | SQLite, SQL |
 | API | RESTful API, Fetch API |
-| Authentication | Session-based authentication, bcrypt |
+| Authentication | Session-based authentication, bcryptjs |
 | Development Tools | Vite, ESLint, npm |
 | Version Control | Git, GitHub |
 | Development Environment | VS Code |
@@ -54,7 +54,7 @@ SQLite is used to store and manage application data, including user accounts, pr
 
 ### Customer Storefront
 
-- Browse the product catalog
+- Retrieve product information from the database
 - View product images, descriptions, prices, and stock quantities
 - View individual product details
 - Display active products
@@ -103,7 +103,7 @@ Products are deactivated rather than permanently deleted to preserve product rec
 - Prevent checkout when cart items are invalid
 - Automatically deduct inventory after successful purchases
 - Record inventory additions, sales, and stock adjustments
-- Maintain inventory transaction records
+- Maintain consistent product and inventory records through database transactions
 
 Inventory is deducted only after an order has been successfully processed, rather than when products are added to the shopping cart.
 
@@ -134,8 +134,6 @@ Storefront-Inventory-Management/
 │   ├── src/
 │   │   ├── components/
 │   │   │   └── ProductCard.jsx
-│   │   ├── data/
-│   │   │   └── products.js
 │   │   ├── pages/
 │   │   │   ├── AdminProducts.jsx
 │   │   │   ├── Login.jsx
@@ -143,7 +141,8 @@ Storefront-Inventory-Management/
 │   │   │   ├── Register.jsx
 │   │   │   └── ShoppingCart.jsx
 │   │   ├── services/
-│   │   │   └── auth.js
+│   │   │   ├── auth.js
+│   │   │   └── products.js
 │   │   ├── App.jsx
 │   │   ├── App.css
 │   │   ├── index.css
@@ -160,14 +159,16 @@ Storefront-Inventory-Management/
 │   │   ├── database.js
 │   │   └── session.js
 │   ├── controllers/
-│   │   └── authController.js
+│   │   ├── authController.js
+│   │   └── productController.js
 │   ├── database/
 │   │   ├── schema.sql
 │   │   └── seed.js
 │   ├── middleware/
 │   │   └── authMiddleware.js
 │   ├── routes/
-│   │   └── authRoutes.js
+│   │   ├── authRoutes.js
+│   │   └── productRoutes.js
 │   ├── app.js
 │   ├── package-lock.json
 │   └── package.json
@@ -189,9 +190,8 @@ Storefront-Inventory-Management/
 | `frontend/` | React frontend application |
 | `frontend/public/` | Product images and static resources |
 | `frontend/src/components/` | Reusable React components |
-| `frontend/src/data/` | Frontend data and configuration |
 | `frontend/src/pages/` | Application pages and user interfaces |
-| `frontend/src/services/` | API communication between the frontend and backend |
+| `frontend/src/services/` | Frontend communication with authentication and product APIs |
 | `backend/` | Node.js and Express backend application |
 | `backend/config/` | Database, session, and application configuration |
 | `backend/controllers/` | Request handling and application logic |
@@ -237,7 +237,7 @@ The following libraries are used to support backend functionality:
 | Library | Purpose |
 |---------|---------|
 | [better-sqlite3](https://github.com/WiseLibs/better-sqlite3) | SQLite database operations |
-| [bcrypt](https://github.com/kelektiv/node.bcrypt.js) | Password hashing |
+| [bcryptjs](https://github.com/dcodeIO/bcrypt.js) | Password hashing |
 | [express-session](https://github.com/expressjs/session) | User session management |
 | [better-sqlite3-session-store](https://www.npmjs.com/package/better-sqlite3-session-store) | Persistent session storage |
 | [cors](https://github.com/expressjs/cors) | Cross-origin resource sharing |
@@ -251,7 +251,7 @@ Detailed project documentation is available in the `docs/` directory.
 | Document | Description |
 |----------|-------------|
 | [Frontend Setup and Testing](docs/FRONTEND_SETUP.md) | Frontend installation, configuration, and testing |
-| [Database Setup and Testing](docs/DATABASE_SETUP.md) | Backend and database configuration, initialization, seed data, and testing |
+| [Database Setup and Testing](docs/DATABASE_SETUP.md) | Backend and database configuration, seed data, Product API, inventory management, and testing |
 | [Entity-Relationship Diagram (PDF)](docs/ER-diagram.pdf) | Database design and table relationships |
 | [Entity-Relationship Diagram (PNG)](docs/ER-diagram.png) | Visual representation of the database design |
 
@@ -270,6 +270,8 @@ Detailed project documentation is available in the `docs/` directory.
 - Frontend authentication API integration
 - Role-based frontend navigation
 - Product Management API
+- Frontend Product API integration
+- Product inventory transaction management
 - Frontend testing and documentation
 
 ### Neha Marlady

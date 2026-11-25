@@ -22,6 +22,7 @@ const AdminProducts = ({
   const [form, setForm] = useState(emptyForm);
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
 
   const handleAdd = () => {
     setEditingId(null);
@@ -36,10 +37,10 @@ const AdminProducts = ({
     setForm({
       sku: product.sku,
       name: product.name,
-      description: product.description,
+      description: product.description || '',
       price: (product.price_cents / 100).toFixed(2),
       stock_quantity: String(product.stock_quantity),
-      category: product.category,
+      category: product.category || '',
       image_url: product.image_url || '',
       is_active: product.is_active,
     });
@@ -57,7 +58,7 @@ const AdminProducts = ({
     }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     const price = Number(form.price);
@@ -101,13 +102,22 @@ const AdminProducts = ({
       is_active: form.is_active,
     };
 
-    onSave(productData, editingId);
+    setSaving(true);
 
-    setShowForm(false);
-    setEditingId(null);
-    setForm({ ...emptyForm });
-    setError('');
+    try {
+      await onSave(productData, editingId);
+
+      setShowForm(false);
+      setEditingId(null);
+      setForm({ ...emptyForm });
+      setError('');
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setSaving(false);
+    }
   };
+
 
   const handleCancel = () => {
     setShowForm(false);
@@ -116,25 +126,41 @@ const AdminProducts = ({
     setError('');
   };
 
-  const handleDeactivate = (product) => {
-    const confirmed = window.confirm(
-      `Are you sure you want to deactivate "${product.name}"?`,
-    );
+  const handleDeactivate = async (productId) => {
+    if (!window.confirm('Are you sure you want to deactivate this product?')) {
+      return;
+    }
 
-    if (confirmed) {
-      onDeactivate(product.product_id);
+    setSaving(true);
+    setError('');
 
-      if (editingId === product.product_id) {
+    try {
+      await onDeactivate(productId);
+
+      if (editingId === productId) {
         handleCancel();
       }
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setSaving(false);
     }
   };
 
-  const handleActivate = (product) => {
-    onSave({ is_active: 1 }, product.product_id);
+  const handleActivate = async (productId) => {
+    setSaving(true);
+    setError('');
 
-    if (editingId === product.product_id) {
-      handleCancel();
+    try {
+      await onSave({ is_active: 1 }, productId);
+
+      if (editingId === productId) {
+        handleCancel();
+      }
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -145,7 +171,7 @@ const AdminProducts = ({
         className="back-button"
         onClick={onBack}
       >
-        ← Back to Storefront
+        Back to Storefront
       </button>
 
       <div className="admin-heading">
@@ -158,10 +184,17 @@ const AdminProducts = ({
           type="button"
           className="admin-primary-button"
           onClick={handleAdd}
+          disabled={saving}
         >
           Add Product
         </button>
       </div>
+
+      {error && (
+        <p className="admin-error" role="alert">
+          {error}
+        </p>
+      )}
 
       {showForm && (
         <form className="admin-form" onSubmit={handleSubmit}>
@@ -271,24 +304,20 @@ const AdminProducts = ({
             </label>
           </div>
 
-          {error && (
-            <p className="admin-error" role="alert">
-              {error}
-            </p>
-          )}
-
           <div className="admin-form-actions">
             <button
               type="submit"
               className="admin-primary-button"
+              disabled={saving}
             >
-              Save Product
+              {saving ? 'Saving...' : 'Save Product'}
             </button>
 
             <button
               type="button"
               className="admin-secondary-button"
               onClick={handleCancel}
+              disabled={saving}
             >
               Cancel
             </button>
@@ -344,6 +373,7 @@ const AdminProducts = ({
                     <button
                       type="button"
                       onClick={() => handleEdit(product)}
+                      disabled={saving}
                     >
                       Edit
                     </button>
@@ -352,14 +382,16 @@ const AdminProducts = ({
                       <button
                         type="button"
                         className="admin-delete-button"
-                        onClick={() => handleDeactivate(product)}
+                        onClick={() => handleDeactivate(product.product_id)}
+                        disabled={saving}
                       >
                         Deactivate
                       </button>
                     ) : (
                       <button
                         type="button"
-                        onClick={() => handleActivate(product)}
+                        onClick={() => handleActivate(product.product_id)}
+                        disabled={saving}
                       >
                         Activate
                       </button>

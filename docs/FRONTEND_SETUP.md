@@ -8,7 +8,7 @@ The frontend uses React, JavaScript, JSX, CSS, and Vite.
 
 ## 2. Frontend Structure
 
-```text
+```
 frontend/
 ├── public/
 │   ├── images/
@@ -21,8 +21,6 @@ frontend/
 ├── src/
 │   ├── components/
 │   │   └── ProductCard.jsx
-│   ├── data/
-│   │   └── products.js
 │   ├── pages/
 │   │   ├── AdminProducts.jsx
 │   │   ├── Login.jsx
@@ -30,7 +28,8 @@ frontend/
 │   │   ├── Register.jsx
 │   │   └── ShoppingCart.jsx
 │   ├── services/
-│   │   └── auth.js
+│   │   ├── auth.js
+│   │   └── products.js
 │   ├── App.jsx
 │   ├── App.css
 │   ├── index.css
@@ -57,20 +56,20 @@ frontend/
 
 From the root directory of the project, run:
 
-```bash
+```
 cd frontend
 npm ci
 ```
 
 ### Start the Backend
 
-The backend needs to be running for authentication to work.
+The backend needs to be running for authentication, product retrieval, and product management to work.
 
 Follow the instructions in `docs/DATABASE_SETUP.md` to set up the database and environment variables.
 
 From the `backend/` directory, run:
 
-```bash
+```
 npm ci
 npm run dev
 ```
@@ -83,7 +82,7 @@ The backend runs at:
 
 Open a separate terminal and run the following from the `frontend/` directory:
 
-```bash
+```
 npm run dev
 ```
 
@@ -112,9 +111,10 @@ The following tests can be performed manually through the frontend.
 ### Test 1: Product Catalog
 
 - Sign into an account.
-- Verify that all active products are displayed.
+- Verify that active products are retrieved from the database.
 - Verify that product images, names, descriptions, prices, and stock quantities are displayed correctly.
-- Resize the browser window to test the responsive layout.
+- Verify that products without images display a placeholder.
+- Refresh the browser and verify that products remain available.
 
 **Status: Passed**
 
@@ -134,6 +134,8 @@ The following tests can be performed manually through the frontend.
 - Add a new product.
 - Edit an existing product.
 - Verify that the changes are reflected in the storefront.
+- Refresh the browser and verify that product changes are saved in the database.
+- Verify that inventory transactions are recorded when stock quantities change.
 
 **Status: Passed**
 
@@ -277,30 +279,42 @@ Verify that each user has the correct access permissions.
 
 **Status: Passed**
 
-## 6. Testing Notes and Current Limitations
+### Test 15: Product API Integration
 
-### Authentication Testing
+- Verify that authenticated users can retrieve active products.
+- Verify that administrators can retrieve all products, including inactive products.
+- Verify that administrators can create, edit, activate, and deactivate products.
+- Verify that unauthenticated product requests return HTTP 401.
+- Verify that customer requests to the administrator product listing return HTTP 403.
+- Verify that product and inventory changes persist in SQLite.
 
-During authentication testing, the backend referenced a shopping cart route that was still being developed.
+**Status: Passed**
 
-We temporarily commented out the cart route import and registration in `backend/app.js` to allow authentication testing.
+Direct customer requests to product creation and update endpoints require additional testing.
 
-The original backend configuration was restored after testing, and the temporary changes were not committed.
 
-The missing cart route must be available before the backend can start with its original configuration.
+## 5. Testing Notes and Current Limitations
+
+### Backend Integration Testing
+
+During authentication and product management testing, the backend referenced a shopping cart route that was still being developed.
+
+The cart route import and registration in `backend/app.js` were temporarily disabled for local testing.
+
+The shopping cart route must be available before the backend can start with its original configuration.
 
 ### Current Limitations
 
-- Product information is currently managed through React state rather than the database.
-- Product changes are not saved after refreshing the application.
-- Shopping cart information is not persistent across user sessions.
-- Product management and shopping cart functionality are not yet connected to their corresponding backend APIs.
+- Shopping cart information is managed through React state and is not persistent across user sessions.
+- The shopping cart is not yet connected to the backend Cart API.
 - The checkout interface currently supports order review only.
-- Order submission, automatic inventory deduction, and inventory transaction recording require backend integration.
+- Order submission and automatic inventory deduction during checkout require backend integration.
 - The Vite API proxy is configured for development only.
 
 ### Additional Testing
 
-Product management, shopping cart, inventory management, and checkout functionality will need to be tested again once their corresponding backend APIs are integrated.
+Shopping cart persistence, checkout, order submission, and inventory deduction will need to be tested once their corresponding backend APIs are integrated.
+
+Product API input validation and customer write restrictions require additional backend testing.
 
 Local database files, environment credentials, and temporary backend changes should not be committed to GitHub.
