@@ -6,6 +6,7 @@ const db = require('./config/database');
 const authRoutes = require('./routes/authRoutes');
 const sessionMiddleware = require('./config/session');
 const cartRoutes = require('./routes/cartRoutes');
+const productRoutes = require('./routes/productRoutes');
 
 const app = express();
 const port = process.env.PORT || 5001;
@@ -23,6 +24,7 @@ app.use(sessionMiddleware);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/products', productRoutes);
 
 app.get('/api/health', (req, res) => {
   const result = db.prepare('SELECT COUNT(*) AS count FROM products').get();
