@@ -28,6 +28,11 @@ backend/database/sessions.db-shm
 *.log
 cookies.txt
 admin-cookies.txt
+# Logs
+*.log
+
+# Session cookies
+*cookies*.txt
 
 # Editor files
 .vscode/
